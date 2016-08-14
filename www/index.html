@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <title></title>
+
+    <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+   
+
+    <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
+    <link href="css/ionic.app.css" rel="stylesheet">
+    -->
+
+    <!-- ionic/angularjs js -->
+    <script src="lib/ionic/js/ionic.bundle.js"></script>
+    <script src="js/ng-cordova.min.js"></script>
+    <script src='lib/ng-cordova-oauth/dist/ng-cordova-oauth.min.js'></script>
+
+    <!-- cordova script (this will be a 404 during development) -->
+    <script src="cordova.js"></script>
+
+    <!-- your app's js -->
+    <script src="js/jquery.js"></script>
+    <script src='lib/jsSHA/src/sha.js'></script>
+    <script src="js/app.js"></script>
+   </head>
+  <body ng-app="starter">
+<script>
+  window.fbAsyncInit = function() {
+
+    FB.init({
+      appId      : '271818059870528',
+      xfbml      : true,
+      version    : 'v2.7'
+    });
+    
+  };
+
+  (function(d, s, id){
+     var js, fjs = d.getElementsByTagName(s)[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement(s); js.id = id;
+     js.src = "//connect.facebook.net/en_US/sdk.js";
+     fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+
+  function fbLogin(){
+    FB.login(function(response){
+        FB.api('me',function(res){
+
+        });
+    });
+    setTimeout(function(){
+      $('#splashscreen').fadeOut(200);
+    },700);
+  } 
+</script>
+
+  <div id='splashscreen'>
+    <div id='fblogin' class='social' onClick='fbLogin()'>
+      <i class='ion-social-facebook'></i>
+    </div>
+    <div id='twitterlogin'class='social' onClick='tlogin()'>
+      <i class='ion-social-twitter'></i>
+    </div>
+  </div>  
+  <div  ng-controller="RunCtrl">
+    <ion-side-menus enable-menu-with-back-views="false" title='menu'>
+      <ion-side-menu-content>
+        <ion-nav-bar class="bar-stable bar-calm">
+          <ion-nav-back-button>
+          </ion-nav-back-button>
+
+          <ion-nav-buttons side="left">
+              <button class="button button-icon button-clear ion-navicon" menu-toggle="left">
+              </button>
+              <h1 class='title' style='text-align:center;'>Go Run</h1>
+          </ion-nav-buttons>
+      </ion-nav-bar>
+
+      <ion-nav-view name="menuContent">
+        <ion-content class='has-header' >
+          <div class='body'id='viewCont'>
+            
+          </div>
+        </ion-content>
+      </ion-nav-view>
+    </ion-side-menu-content>
+    <ion-side-menu side="left">
+      <ion-header-bar class="bar-stable">
+          <h1 class="title">Menu</h1>
+      </ion-header-bar>
+      <ion-content>
+          <ion-list>
+            <ion-item nav-clear menu-close class="item item-icon-left" id='ahome'>
+                 <i class="icon ion-home "></i>Home
+             </ion-item>
+
+            <ion-item nav-clear menu-close onclick="window.plugins.socialsharing.shareViaWhatsApp('Hey!! I am using BookTune-UnPlug with a Book to Buy/ Sell my old books at amazing price. You can download it by clicking on the following link. https://play.google.com/store/apps/details?id=in.pcitsolutions.booktune', null /* img */, null /* url */, function() {console.log('share ok')}, function(errormsg){alert(errormsg)})" class="item item-icon-left" >
+                <i class="icon ion-social-facebook"></i>Share with Friends
+            </ion-item>
+
+            <ion-item nav-clear menu-close href="#/map/profile" class="item item-icon-left" >
+                <i class="icon ion-person"></i>Profile
+            </ion-item>
+
+            <ion-item nav-clear menu-close href="#/map/login" class="item item-icon-left" >
+                <i class="icon ion-power"></i>Logout
+            </ion-item>
+
+          </ion-list>
+				</ion-content>
+
+			</ion-side-menu>
+		</ion-side-menus>
+  </div>
+
+  <div class='noshow' id='homeView'>
+     <div class='homeback'>
+      <img src='./img/man.png'>
+      <button class="button button-calm" id='run'>Run</button>
+      <button class="button button-calm" id='enroll' onClick="route('enroll')">Enroll</button>
+    </div>
+  </div>
+
+  <div class='noshow' id='runView'>
+    <div class='back' id='back'>
+      <div class='row'>
+        <div class='overlay' id='distance'>
+          <span>DISTANCE<span>
+          <span class='bold' id='tour'>0m</span>
+        </div>
+      </div>
+
+      <div class='row'> 
+          <div class='overlay' id='speed'><div>AVG SPEED</div><div class='bold' > 4 m/s</div></div>
+          <div class='overlay' id='time'><div>TIME</div><div  class='bold' id='dur'>0h 0m</div></div>
+      </div>
+      <div class='man'>
+        <img src='img/standing.gif' id='standing' style='display:none;'>
+        <img src='img/running.gif' id='running'>
+      </div>
+    </div>
+    <div class='actions'>
+      <div id='stop' onClick="stop()">STOP</div>
+      <div id='pause' onClick='pause()'>PAUSE</div>
+    </div>
+  </div>
+
+  <div class='noshow' id='stopView'>
+    <div class='stopback' id='stopback'>
+       <div class='row'>
+        <div class='overlay' id='rdistance'>
+          <span>DISTANCE<span>
+          <span class='bold' id='resultd'>0m</span>
+        </div>
+      </div>
+
+      <div class='row'> 
+          <div class='overlay' id='rspeed'>
+            <div>AVG SPEED</div>
+            <div class='bold' > 4 m/s</div>
+          </div>
+          <div class='overlay' id='rtime'>
+            <div>TIME</div>
+            <div  class='bold' id='resultt'>0h 0m 0s</div>
+          </div>
+      </div>
+
+      <div class='row' class='sug'>
+        <div class='overlay' id='suggestions' onClick="route('suggestions')">
+          <span>SUGGESTIONS<span>
+          <img src='img/suggest_icon.png'>  
+        </div>
+      </div>
+       <div class='winningman'>
+          <img src='img/new.gif'>
+        </div>
+    </div>
+  </div>
+
+  <div id='suggestionsView'>
+    <div id='base'>
+      <div class='row'>
+        <div class='circle' id='food' onClick='foodSug()'>
+          <img src="img/diet_icon.png">
+        </div>
+        <div class='circle' id='exer' onClick='exerSug()'>
+          <img src="img/exercise_icon.png">
+        </div>
+      </div>
+      <div class='circle' id='misc' onClick='miscSug()'>
+        <img src='img/misc_icon.png'>
+      </div>
+    </div>
+  </div>
+
+<div id='enrollView' class='noshow'>
+  <div class='overlay'>
+    <span>1K</span>
+    <img src='img/suggest_icon.png'>  
+  </div>
+  <div class='overlay'>
+    <span>5K</span>
+    <img src='img/suggest_icon.png'>  
+  </div>
+  <div class='overlay'>
+    <span>10K</span>
+    <img src='img/suggest_icon.png'>  
+  </div>
+  <div class='overlay'>
+    <span>25K</span>
+    <img src='img/suggest_icon.png'>  
+  </div>
+  <div></div>
+</div>
+
+  <div id='popup' class='noshow'>
+    <div id='text'>
+      you are faster than x%
+    </div>
+  </div>
+  </body>
+</html>
